@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_HOST: str
-    POSTGRES_PORT: str
+    POSTGRES_PORT: int
 
     @property
     def DATABASE_URL(self):
@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     TEST_POSTGRES_USER: str
     TEST_POSTGRES_PASSWORD: str
     TEST_POSTGRES_HOST: str
-    TEST_POSTGRES_PORT: str
+    TEST_POSTGRES_PORT: int
 
     @property
     def TEST_DATABASE_URL(self):
