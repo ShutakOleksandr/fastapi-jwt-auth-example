@@ -60,28 +60,43 @@ async def logout(
     return {"message": "Logged out successfully"}
 
 
-@auth_router.post("/refresh")
+@auth_router.post("/refresh", response_model=Token)
 async def refresh_token(
     request: Request,
     response: Response
 ) -> Token:
-    new_token = await AuthService.refresh_token(
-        uuid.UUID(request.cookies.get("refresh_token"))
-    )
+    refresh_token_raw = request.cookies.get("refresh_token")
+    if not refresh_token_raw:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Refresh token is missing"
+        )
+
+    try:
+        refresh_token = uuid.UUID(refresh_token_raw)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid refresh token format"
+        )
+
+    new_token = await AuthService.refresh_token(refresh_token)
 
     response.set_cookie(
-        'access_token',
-        new_token.access_token,
+        key="access_token",
+        value=new_token.access_token,
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         httponly=True,
     )
     response.set_cookie(
-        'refresh_token',
-        new_token.refresh_token,
-        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 30 * 24 * 60,
+        key="refresh_token",
+        value=str(new_token.refresh_token),
+        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         httponly=True,
     )
+
     return new_token
+
 
 
 @auth_router.post("/abort")
