@@ -36,7 +36,7 @@ class User(UserBase):
         from_attributes = True
 
 
-# Модель для сохранения пользователя в БД (с хешированным паролем)
+
 class UserCreateDB(BaseModel):
     hashed_password: str
 
